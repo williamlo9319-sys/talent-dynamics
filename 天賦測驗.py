@@ -668,45 +668,43 @@ else:
     <br>
     """, unsafe_allow_html=True)
     
-    # 雷達圖數據準備
+    # 雷達圖數據準備 (八角色 + 四能量)
     labels = ["創作者", "明星", "支持者", "媒合者", "商人", "積蓄者", "地主", "技師"]
     r_vals = [
-        d_pct,              # Creator (Top)
-        (d_pct + b_pct)/2,  # Star
-        b_pct,              # Supporter (Right)
-        (b_pct + t_pct)/2,  # Deal Maker
-        t_pct,              # Trader (Bottom)
-        (t_pct + s_pct)/2,  # Accumulator
-        s_pct,              # Lord (Left)
-        (s_pct + d_pct)/2   # Mechanic
+        d_pct,              # 創作者 (Dynamo)
+        (d_pct + b_pct)/2,  # 明星 (Dynamo/Blaze)
+        b_pct,              # 支持者 (Blaze)
+        (b_pct + t_pct)/2,  # 媒合者 (Blaze/Tempo)
+        t_pct,              # 商人 (Tempo)
+        (t_pct + s_pct)/2,  # 積蓄者 (Tempo/Steel)
+        s_pct,              # 地主 (Steel)
+        (s_pct + d_pct)/2   # 技師 (Steel/Dynamo)
     ]
     r_vals.append(r_vals[0])
     labels.append(labels[0])
     
-    # 手動繪製背景網格 (八角形與放射線)
     fig = go.Figure()
-    max_val = max(r_vals) * 1.1 if max(r_vals) > 0 else 10
-    
+    max_val = max(r_vals) * 1.2 if max(r_vals) > 0 else 10
+
     # 1. 繪製放射狀虛線 (Axes)
     for i in range(8):
         fig.add_trace(go.Scatterpolar(
             r=[0, max_val],
             theta=[labels[i], labels[i]],
             mode='lines',
-            line=dict(color='#e2e8f0', width=1, dash='dash'),
+            line=dict(color='#94a3b8', width=1, dash='dash'),
             showlegend=False,
             hoverinfo='skip'
         ))
 
-    # 2. 繪製八角形網格 (Grid Levels)
-    grid_levels = [0.2, 0.4, 0.6, 0.8, 1.0]
-    for level in grid_levels:
+    # 2. 繪製八角形網格
+    for level in [0.2, 0.4, 0.6, 0.8, 1.0]:
         r_grid = [max_val * level] * 9
         fig.add_trace(go.Scatterpolar(
             r=r_grid,
             theta=labels,
             mode='lines',
-            line=dict(color='#e2e8f0', width=1, dash='dash'),
+            line=dict(color='#94a3b8', width=1),
             showlegend=False,
             hoverinfo='skip'
         ))
@@ -716,44 +714,48 @@ else:
         r=r_vals,
         theta=labels,
         fill='toself',
-        fillcolor='rgba(59, 130, 246, 0.1)',
+        fillcolor='rgba(59, 130, 246, 0.15)',
         line=dict(color='#2563eb', width=3),
         marker=dict(size=8, color='#fbbf24')
     ))
 
+    # 4. 八角色外圍黃色圓點 (裝飾)
+    dot_r = [max_val * 1.02] * 8
+    fig.add_trace(go.Scatterpolar(
+        r=dot_r,
+        theta=labels[:-1],
+        mode='markers',
+        marker=dict(size=10, color='#fbbf24'),
+        showlegend=False,
+        hoverinfo='skip'
+    ))
+
     fig.update_layout(
         polar=dict(
-            radialaxis=dict(visible=False, range=[0, max_val]),
+            radialaxis=dict(visible=False, range=[0, max_val * 1.1]),
             angularaxis=dict(
                 visible=True,
                 showline=False,
                 showgrid=False,
-                showticklabels=False,
+                tickfont=dict(size=13, color='#e2e8f0'),
+                direction="clockwise",
+                rotation=90,
             ),
             bgcolor='rgba(255,255,255,0)'
         ),
         annotations=[
-            # 核心頻率中文標籤 (顏色對應)
-            dict(x=0.5, y=0.8, text="發電機", showarrow=False, font=dict(size=16, color="#fbbf24")),
-            dict(x=0.8, y=0.5, text="火焰", showarrow=False, font=dict(size=16, color="#f87171")),
-            dict(x=0.5, y=0.2, text="節奏", showarrow=False, font=dict(size=16, color="#a78bfa")),
-            dict(x=0.2, y=0.5, text="鋼鐵", showarrow=False, font=dict(size=16, color="#60a5fa")),
+            # 四大能量標籤 (創作者在上，順時針)
+            dict(x=0.5, y=0.73, text="<b>發電機</b>", showarrow=False, font=dict(size=14, color="#fbbf24")),
+            dict(x=0.73, y=0.5, text="<b>火焰</b>", showarrow=False, font=dict(size=14, color="#f87171")),
+            dict(x=0.5, y=0.27, text="<b>節奏</b>", showarrow=False, font=dict(size=14, color="#a78bfa")),
+            dict(x=0.27, y=0.5, text="<b>鋼鐵</b>", showarrow=False, font=dict(size=14, color="#60a5fa")),
             # 內傾/外傾標籤
-            dict(x=0.68, y=0.25, text="外傾", showarrow=False, font=dict(size=14, color="#e2e8f0")),
-            dict(x=0.32, y=0.25, text="內傾", showarrow=False, font=dict(size=14, color="#e2e8f0")),
-            # 8個屬性標籤 (帶顏色)
-            dict(x=0.5, y=1.08, text="創作者", showarrow=False, font=dict(size=14, color="#fbbf24")),
-            dict(x=0.9, y=0.9, text="明星", showarrow=False, font=dict(size=14, color="#FF9800")),
-            dict(x=1.1, y=0.5, text="支持者", showarrow=False, font=dict(size=14, color="#f87171")),
-            dict(x=0.9, y=0.1, text="媒合者", showarrow=False, font=dict(size=14, color="#E91E63")),
-            dict(x=0.5, y=-0.08, text="商人", showarrow=False, font=dict(size=14, color="#a78bfa")),
-            dict(x=0.1, y=0.1, text="積蓄者", showarrow=False, font=dict(size=14, color="#673AB7")),
-            dict(x=-0.1, y=0.5, text="地主", showarrow=False, font=dict(size=14, color="#60a5fa")),
-            dict(x=0.1, y=0.9, text="技師", showarrow=False, font=dict(size=14, color="#03A9F4")),
+            dict(x=0.35, y=0.32, text="內傾", showarrow=False, font=dict(size=12, color="#94a3b8")),
+            dict(x=0.65, y=0.32, text="外傾", showarrow=False, font=dict(size=12, color="#94a3b8")),
         ],
         showlegend=False,
-        margin=dict(l=100, r=100, t=60, b=60),
-        height=520,
+        margin=dict(l=60, r=60, t=40, b=40),
+        height=450,
         paper_bgcolor="rgba(0,0,0,0)"
     )
     st.plotly_chart(fig, use_container_width=True)
@@ -812,41 +814,44 @@ else:
         ax_radar = axes[1]
         ax_radar.set_facecolor('#0f172a')
         
-        # 用極座標重繪雷達圖
+        # 用極座標重繪雷達圖 (八角色)
         ax_radar.axis('off')
-        # 在 axes[1] 的位置建立極座標子圖
         radar_ax = fig_img.add_axes([0.1, 0.05, 0.8, 0.6], polar=True, facecolor='#0f172a')
+        radar_ax.set_theta_zero_location('N')   # 0度在上方
+        radar_ax.set_theta_direction(-1)         # 順時針
         
         angles = np.linspace(0, 2 * np.pi, 8, endpoint=False).tolist()
         r_data = [
             d_pct, (d_pct + b_pct)/2, b_pct, (b_pct + t_pct)/2,
             t_pct, (t_pct + s_pct)/2, s_pct, (s_pct + d_pct)/2
         ]
-        # 閉合
         angles += angles[:1]
         r_data += r_data[:1]
         
         radar_labels = ['創作者', '明星', '支持者', '媒合者', '商人', '積蓄者', '地主', '技師']
-        label_colors = ['#fbbf24', '#FF9800', '#f87171', '#E91E63', '#a78bfa', '#673AB7', '#60a5fa', '#03A9F4']
         
-        max_v = max(r_data) * 1.1 if max(r_data) > 0 else 10
+        max_v = max(r_data) * 1.2 if max(r_data) > 0 else 10
         
         # 網格
         for lvl in [0.2, 0.4, 0.6, 0.8, 1.0]:
             grid_r = [max_v * lvl] * 9
             grid_a = angles
-            radar_ax.plot(grid_a, grid_r, '--', color='#475569', linewidth=0.8)
+            radar_ax.plot(grid_a, grid_r, '-', color='#94a3b8', linewidth=0.8)
         
         # 放射線
         for a in angles[:-1]:
-            radar_ax.plot([a, a], [0, max_v], '--', color='#475569', linewidth=0.8)
+            radar_ax.plot([a, a], [0, max_v], '--', color='#94a3b8', linewidth=0.8)
         
         # 數據
         radar_ax.fill(angles, r_data, color='#2563eb', alpha=0.15)
         radar_ax.plot(angles, r_data, color='#2563eb', linewidth=2.5)
         radar_ax.scatter(angles[:-1], r_data[:-1], color='#fbbf24', s=60, zorder=5)
         
-        radar_ax.set_ylim(0, max_v)
+        # 外圍黃色圓點
+        for a in angles[:-1]:
+            radar_ax.scatter([a], [max_v * 1.02], color='#fbbf24', s=50, zorder=5)
+        
+        radar_ax.set_ylim(0, max_v * 1.1)
         radar_ax.set_xticks(angles[:-1])
         radar_ax.set_xticklabels(radar_labels, fontsize=12, color='#e2e8f0',
                                  fontfamily=CN_FONT_NAME, fontweight='bold')
@@ -854,7 +859,7 @@ else:
         radar_ax.spines['polar'].set_visible(False)
         radar_ax.grid(False)
         
-        # 頻率標籤
+        # 四大能量標籤 (順時針: 上=發電機, 右=火焰, 下=節奏, 左=鋼鐵)
         radar_ax.text(0, max_v * 0.55, '發電機', fontsize=11, color='#fbbf24',
                       ha='center', va='center', fontfamily=CN_FONT_NAME, fontweight='bold')
         radar_ax.text(np.pi/2, max_v * 0.55, '火焰', fontsize=11, color='#f87171',
@@ -863,6 +868,11 @@ else:
                       ha='center', va='center', fontfamily=CN_FONT_NAME, fontweight='bold')
         radar_ax.text(3*np.pi/2, max_v * 0.55, '鋼鐵', fontsize=11, color='#60a5fa',
                       ha='center', va='center', fontfamily=CN_FONT_NAME, fontweight='bold')
+        # 內傾/外傾
+        radar_ax.text(np.pi * 1.25, max_v * 0.35, '內傾', fontsize=10, color='#94a3b8',
+                      ha='center', va='center', fontfamily=CN_FONT_NAME)
+        radar_ax.text(np.pi * 0.75, max_v * 0.35, '外傾', fontsize=10, color='#94a3b8',
+                      ha='center', va='center', fontfamily=CN_FONT_NAME)
         
         plt.subplots_adjust(hspace=0.05)
         
