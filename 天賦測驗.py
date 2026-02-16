@@ -758,7 +758,7 @@ else:
         height=450,
         paper_bgcolor="rgba(0,0,0,0)"
     )
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, use_container_width=True, config={'staticPlot': True})
 
     # --- 截圖下載按鈕 ---
     def generate_result_image():
